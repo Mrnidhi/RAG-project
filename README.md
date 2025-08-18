@@ -15,12 +15,12 @@ The RAG Production System is a sophisticated Retrieval-Augmented Generation appl
 *Interface for inputting queries about uploaded PDF documents.*
 
 
-### 4. Answer Dashboard
+### 3. Answer Dashboard
 ![Answer Dashboard](screenshots/1.png)
 *Display of AI-generated responses and question-answer process details.*
 
-### 5. Docker Container Status
-![Docker Container Status](screenshots/4.png)
+### 4. Docker Container Status
+![Docker Container Status](screenshots/5.png)
 *System monitoring dashboard showing container health and performance.*
 
 ## Key Features
