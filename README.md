@@ -7,23 +7,20 @@ The RAG Production System is a sophisticated Retrieval-Augmented Generation appl
 ## Screenshots
 
 ### 1. PDF Upload Dashboard
-![PDF Upload Dashboard](screenshots/main-dashboard.png)
+![PDF Upload Dashboard](screenshots/2.png)
 *Drag-and-drop interface for uploading PDF documents with progress tracking.*
 
 ### 2. Question Dashboard
-![Question Dashboard](screenshots/pdf-upload.png)
+![Question Dashboard](screenshots/3.png)
 *Interface for inputting queries about uploaded PDF documents.*
 
-### 3. Question Interface
-![Question Interface](screenshots/question-answering.png)
-*Interactive Q&A interface with AI-generated responses based on PDF content.*
 
 ### 4. Answer Dashboard
-![Answer Dashboard](screenshots/admin-panel.png)
+![Answer Dashboard](screenshots/1.png)
 *Display of AI-generated responses and question-answer process details.*
 
 ### 5. Docker Container Status
-![Docker Container Status](screenshots/system-architecture.png)
+![Docker Container Status](screenshots/4.png)
 *System monitoring dashboard showing container health and performance.*
 
 ## Key Features
@@ -267,8 +264,5 @@ docker exec rag-container python manage.py test --verbosity=2
 - **Embedding Generation**: FastEmbed for efficient text processing
 - **Chunking Strategy**: Recursive character splitting for optimal retrieval
 
----
-
-**Last updated: December 2024**
 
 
