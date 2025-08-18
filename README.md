@@ -6,25 +6,25 @@ The RAG Production System is a sophisticated Retrieval-Augmented Generation appl
 
 ## Screenshots
 
-### 1. Main Dashboard
-![Main Dashboard](screenshots/main-dashboard.png)
-*The main dashboard showing the RAG system overview and navigation options.*
+### 1. PDF Upload Dashboard
+![PDF Upload Dashboard](screenshots/main-dashboard.png)
+*The PDF upload dashboard showing the drag-and-drop interface for uploading documents with progress tracking and file validation.*
 
-### 2. PDF Upload Interface
-![PDF Upload](screenshots/pdf-upload.png)
-*Modern drag-and-drop interface for uploading PDF documents with progress tracking.*
+### 2. Question Dashboard
+![Question Dashboard](screenshots/pdf-upload.png)
+*The question dashboard interface where users can input their queries about the uploaded PDF documents.*
 
-### 3. Question Answering Interface
-![Question Answering](screenshots/question-answering.png)
-*Interactive interface for asking questions about uploaded PDFs with AI-generated responses.*
+### 3. Question Interface
+![Question Interface](screenshots/question-answering.png)
+*The interactive question interface displaying the user's question and the AI-generated response based on PDF content.*
 
-### 4. Admin Panel
-![Admin Panel](screenshots/admin-panel.png)
-*Comprehensive Django admin interface for managing PDFs, queries, and system data.*
+### 4. Answer Dashboard
+![Answer Dashboard](screenshots/admin-panel.png)
+*The answer dashboard showing the AI-generated responses and detailed information about the question-answer process.*
 
-### 5. System Architecture
-![System Architecture](screenshots/system-architecture.png)
-*Visual representation of the RAG system architecture and data flow.*
+### 5. Docker Container Status
+![Docker Container Status](screenshots/system-architecture.png)
+*Docker container status and system monitoring dashboard showing the health and performance of all running services.*
 
 ## Key Features
 
@@ -177,7 +177,7 @@ rag-prod/
 ├── manage.py                # Django management script
 ├── .env.example             # Environment variables template
 ├── setup.sh                 # Quick setup and management script
-├── screenshots/             # Application screenshots and visual documentation
+├── screenshots/             # Application screenshots (PDF upload, Q&A, Docker status)
 ├── rag/                     # Django project package
 │   ├── settings.py          # Framework configuration
 │   ├── urls.py              # URL routing configuration
