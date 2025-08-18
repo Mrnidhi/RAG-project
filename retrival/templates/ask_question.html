@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF RAG Assistant - Ask Questions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #f59e0b;
+            --primary-dark: #d97706;
+            --secondary-color: #fef3c7;
+            --accent-color: #10b981;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #f3f4f6;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f59e0b 0%, #10b981 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .main-container {
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .logo-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .content-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #f59e0b, #10b981);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title i {
+            color: var(--primary-color);
+        }
+
+        .question-form {
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .question-textarea {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+            background: var(--secondary-color);
+        }
+
+        .question-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .question-textarea::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: none;
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .answer-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border-left: 6px solid var(--success-color);
+            animation: slideInUp 0.5s ease;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .answer-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .answer-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--success-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .answer-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .answer-content {
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        .answer-content h1, .answer-content h2, .answer-content h3 {
+            color: var(--text-primary);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .answer-content h1 { font-size: 1.5rem; }
+        .answer-content h2 { font-size: 1.3rem; }
+        .answer-content h3 { font-size: 1.1rem; }
+
+        .answer-content ul, .answer-content ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        .answer-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .answer-content p {
+            margin-bottom: 1rem;
+        }
+
+        .answer-content strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .answer-content code {
+            background-color: var(--secondary-color);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            color: var(--primary-color);
+        }
+
+        .answer-content blockquote {
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            background-color: var(--secondary-color);
+            padding: 1rem;
+            border-radius: 0.25rem;
+            color: var(--text-secondary);
+        }
+
+        .error-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border-left: 6px solid var(--error-color);
+            animation: slideInUp 0.5s ease;
+        }
+
+        .error-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .error-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--error-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .error-message {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .navigation-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .nav-link {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link.primary {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .nav-link.primary:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.secondary {
+            background: transparent;
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-link.secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .suggestions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .suggestions-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .suggestion-chips {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .suggestion-chip {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .suggestion-chip:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .question-card, .answer-card, .error-card {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .suggestion-chips {
+                justify-content: center;
+            }
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-section">
+            <div class="logo-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h1 class="main-title">Ask Questions</h1>
+            <p class="subtitle">Get intelligent answers about your uploaded PDF content</p>
+        </div>
+
+        <div class="content-container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="suggestions">
+                <div class="suggestions-title">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    Suggested Questions
+                </div>
+                <div class="suggestion-chips">
+                    <div class="suggestion-chip" onclick="fillQuestion('What is the main topic of this document?')">
+                        What is the main topic?
+                    </div>
+                    <div class="suggestion-chip" onclick="fillQuestion('Summarize the key points')">
+                        Summarize key points
+                    </div>
+                    <div class="suggestion-chip" onclick="fillQuestion('What are the main conclusions?')">
+                        Main conclusions
+                    </div>
+                    <div class="suggestion-chip" onclick="fillQuestion('Explain the methodology used')">
+                        Explain methodology
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="card-title">
+                    <i class="fas fa-question-circle"></i>
+                    Ask Your Question
+                </div>
+                
+                <form method="post" class="question-form" id="questionForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="userQuestion" class="form-label">Enter your question about the PDF content</label>
+                        <textarea 
+                            name="question" 
+                            id="userQuestion" 
+                            class="question-textarea" 
+                            placeholder="E.g., 'What are the main findings of this research?' or 'Can you summarize the key points?'"
+                            required
+                        ></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span class="loading-spinner" id="loadingSpinner" style="display: none;"></span>
+                        <i class="fas fa-paper-plane"></i>
+                        Get Answer
+                    </button>
+                </form>
+
+                <div class="typing-indicator" id="typingIndicator">
+                    <i class="fas fa-robot"></i>
+                    AI is thinking
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            {% if answer %}
+                <div class="answer-card">
+                    <div class="answer-header">
+                        <div class="answer-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="answer-title">Answer</div>
+                    </div>
+                    <div class="answer-content" id="answer-container">
+                        <div id="markdown-content"></div>
+                    </div>
+                </div>
+                <script>
+                    // Convert markdown to HTML and display
+                    const markdownText = `{{ answer|escapejs }}`;
+                    const htmlContent = marked.parse(markdownText);
+                    document.getElementById('markdown-content').innerHTML = htmlContent;
+                </script>
+            {% endif %}
+            
+            {% if error %}
+                <div class="error-card">
+                    <div class="error-header">
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="error-title">Error</div>
+                    </div>
+                    <div class="error-message">
+                        {{ error }}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="navigation-links">
+                <a href="{% url 'upload_pdf' %}" class="nav-link secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Upload
+                </a>
+                <a href="#" class="nav-link primary" onclick="showHelp()">
+                    <i class="fas fa-info-circle"></i>
+                    How it Works
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+    <script>
+        const questionForm = document.getElementById('questionForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        function fillQuestion(question) {
+            document.getElementById('userQuestion').value = question;
+            document.getElementById('userQuestion').focus();
+        }
+
+        questionForm.addEventListener('submit', function(e) {
+            if (document.getElementById('userQuestion').value.trim() === '') {
+                e.preventDefault();
+                return;
+            }
+
+            loadingSpinner.style.display = 'inline-block';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading-spinner"></span>Processing...';
+            
+            // Show typing indicator after a short delay
+            setTimeout(() => {
+                typingIndicator.style.display = 'flex';
+            }, 1000);
+        });
+
+        function showHelp() {
+            alert('How to use:\n\n1. Type your question in the text area above\n2. Click "Get Answer" to submit\n3. The AI will analyze your PDF and provide a detailed answer\n4. Use suggested questions for common queries\n5. You can ask follow-up questions about the same document!');
+        }
+
+        // Auto-resize textarea
+        const textarea = document.getElementById('userQuestion');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 300) + 'px';
+        });
+
+        // Focus on textarea when page loads
+        window.addEventListener('load', function() {
+            if (textarea.value === '') {
+                textarea.focus();
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,53 @@
+# =============================================================================
+# RAG Production System - Python Dependencies
+# =============================================================================
+# 
+# This file contains all the necessary Python packages and their versions
+# required to run the Retrieval-Augmented Generation (RAG) application.
+# 
+# Author: [Your Name]
+# Project: RAG Production System
+# Version: 1.0.0
+# 
+# Installation: pip install -r requirements.txt
+# =============================================================================
+
+# =============================================================================
+# CORE FRAMEWORK
+# =============================================================================
+django==5.2.3                    # Modern web framework for rapid development
+gunicorn==23.0.0                 # Production-grade WSGI HTTP server
+
+# =============================================================================
+# ARTIFICIAL INTELLIGENCE & MACHINE LEARNING
+# =============================================================================
+langchain-community==0.3.26      # Community integrations for LangChain
+langchain-groq==0.3.4           # Groq LLM integration for LangChain
+fastembed==0.7.1                 # Fast and lightweight text embeddings
+tiktoken==0.9.0                  # Fast BPE tokenizer for OpenAI models
+
+# =============================================================================
+# VECTOR DATABASE & STORAGE
+# =============================================================================
+qdrant-client==1.14.3            # Python client for Qdrant vector database
+
+# =============================================================================
+# DOCUMENT PROCESSING
+# =============================================================================
+pypdf2==3.0.1                    # Pure Python PDF library for text extraction
+
+# =============================================================================
+# DEVELOPMENT & UTILITIES
+# =============================================================================
+uvicorn==0.34.3                  # Lightning-fast ASGI server for development
+pip-chill==1.0.3                 # Dependency management utility
+
+# =============================================================================
+# SYSTEM & COMPATIBILITY
+# =============================================================================
+backports.tarfile==1.2.0         # Backport of tarfile module for compatibility
+importlib-metadata==8.0.0        # Metadata for Python packages
+jaraco.collections==5.1.0        # Additional collection types
+platformdirs==4.2.2              # Platform-specific directory locations
+tomli==2.0.1                     # TOML parser for Python
+h2==4.2.0                        # HTTP/2 implementation

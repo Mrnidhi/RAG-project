@@ -1,0 +1,192 @@
+# =============================================================================
+# RAG Production System - Docker Compose Configuration
+# =============================================================================
+# 
+# This file defines the complete infrastructure for the RAG application,
+# including the Django web application and Qdrant vector database.
+# It provides a simple way to deploy the entire system with a single command.
+# 
+# Author: [Your Name]
+# Project: RAG Production System
+# Version: 1.0.0
+# 
+# Usage: docker-compose up -d
+# =============================================================================
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # QDRANT VECTOR DATABASE SERVICE
+  # =============================================================================
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant-container
+    restart: unless-stopped
+    ports:
+      - "6333:6333"      # HTTP API port
+      - "6334:6334"      # gRPC port
+    volumes:
+      - qdrant_data:/qdrant/storage
+      - qdrant_snapshots:/qdrant/snapshots
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__ENABLE_TLS=false
+    networks:
+      - rag-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =============================================================================
+  # DJANGO RAG APPLICATION SERVICE
+  # =============================================================================
+  rag-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-container
+    restart: unless-stopped
+    ports:
+      - "8000:8000"      # Web application port
+    volumes:
+      - ./uploads:/app/uploads  # PDF upload storage
+      - ./static:/app/static    # Static files
+      - ./media:/app/media      # Media files
+    environment:
+      # =============================================================================
+      # REQUIRED ENVIRONMENT VARIABLES
+      # =============================================================================
+      - GROQ_API_KEY=${GROQ_API_KEY:-your_groq_api_key_here}
+      - QDRANT_API_KEY=${QDRANT_API_KEY:-}
+      - QDRANT_URL=http://qdrant:6333
+      
+      # =============================================================================
+      # DJANGO SETTINGS
+      # =============================================================================
+      - DJANGO_SETTINGS_MODULE=rag.settings
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      
+      # =============================================================================
+      # DATABASE SETTINGS
+      # =============================================================================
+      - DATABASE_URL=sqlite:///db.sqlite3
+      
+      # =============================================================================
+      # SECURITY SETTINGS (CHANGE IN PRODUCTION)
+      # =============================================================================
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-change-this-in-production}
+      - DEBUG=${DEBUG:-False}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      
+      # =============================================================================
+      # PERFORMANCE SETTINGS
+      # =============================================================================
+      - GUNICORN_WORKERS=${GUNICORN_WORKERS:-4}
+      - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-120}
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    networks:
+      - rag-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/upload/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    command: >
+      sh -c "
+        python manage.py migrate &&
+        python manage.py collectstatic --noinput &&
+        gunicorn rag.wsgi:application --config gunicorn.conf.py
+      "
+
+  # =============================================================================
+  # NGINX REVERSE PROXY (OPTIONAL)
+  # =============================================================================
+  # Uncomment this section if you want to use Nginx as a reverse proxy
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: nginx-proxy
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./nginx/ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - rag-app
+  #   networks:
+  #     - rag-network
+
+# =============================================================================
+# VOLUMES FOR DATA PERSISTENCE
+# =============================================================================
+volumes:
+  # Qdrant vector database storage
+  qdrant_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./qdrant_data
+  
+  # Qdrant snapshots for backup
+  qdrant_snapshots:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./qdrant_snapshots
+
+# =============================================================================
+# NETWORK CONFIGURATION
+# =============================================================================
+networks:
+  rag-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    driver_opts:
+      com.docker.network.bridge.name: rag-bridge
+
+# =============================================================================
+# DEPLOYMENT NOTES
+# =============================================================================
+# 
+# 1. Create a .env file with your configuration:
+#    GROQ_API_KEY=your_actual_groq_api_key
+#    QDRANT_API_KEY=your_qdrant_api_key
+#    SECRET_KEY=your_django_secret_key
+#    DEBUG=False
+#    ALLOWED_HOSTS=your-domain.com,localhost
+# 
+# 2. Start the services:
+#    docker-compose up -d
+# 
+# 3. Check service status:
+#    docker-compose ps
+# 
+# 4. View logs:
+#    docker-compose logs -f rag-app
+# 
+# 5. Stop services:
+#    docker-compose down
+# 
+# 6. Rebuild and restart:
+#    docker-compose up -d --build
+# 
+# 7. Access the application:
+#    - Web App: http://localhost:8000
+#    - Qdrant: http://localhost:6333
+#    - Admin: http://localhost:8000/admin
+# 
+# =============================================================================
