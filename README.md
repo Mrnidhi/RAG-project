@@ -8,23 +8,23 @@ The RAG Production System is a sophisticated Retrieval-Augmented Generation appl
 
 ### 1. PDF Upload Dashboard
 ![PDF Upload Dashboard](screenshots/main-dashboard.png)
-*The PDF upload dashboard showing the drag-and-drop interface for uploading documents with progress tracking and file validation.*
+*Drag-and-drop interface for uploading PDF documents with progress tracking.*
 
 ### 2. Question Dashboard
 ![Question Dashboard](screenshots/pdf-upload.png)
-*The question dashboard interface where users can input their queries about the uploaded PDF documents.*
+*Interface for inputting queries about uploaded PDF documents.*
 
 ### 3. Question Interface
 ![Question Interface](screenshots/question-answering.png)
-*The interactive question interface displaying the user's question and the AI-generated response based on PDF content.*
+*Interactive Q&A interface with AI-generated responses based on PDF content.*
 
 ### 4. Answer Dashboard
 ![Answer Dashboard](screenshots/admin-panel.png)
-*The answer dashboard showing the AI-generated responses and detailed information about the question-answer process.*
+*Display of AI-generated responses and question-answer process details.*
 
 ### 5. Docker Container Status
 ![Docker Container Status](screenshots/system-architecture.png)
-*Docker container status and system monitoring dashboard showing the health and performance of all running services.*
+*System monitoring dashboard showing container health and performance.*
 
 ## Key Features
 
@@ -35,23 +35,6 @@ The RAG Production System is a sophisticated Retrieval-Augmented Generation appl
 - **Docker Ready**: Production-ready containerization with Docker
 - **Admin Interface**: Comprehensive Django admin for system management
 - **Test Coverage**: Extensive test suite for quality assurance
-
-## Architecture
-
-The system follows a modern, scalable architecture:
-
-```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Django Web    │    │   Qdrant Vector  │    │   Groq LLM      │
-│   Application   │◄──►│   Database       │    │   API Service   │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-         │
-         ▼
-┌─────────────────┐
-│   FastEmbed     │
-│   Embeddings    │
-└─────────────────┘
-```
 
 ## Technology Stack
 
@@ -237,12 +220,6 @@ Production server settings in `gunicorn.conf.py`:
 - Logging and monitoring
 - Process management
 
-### Docker Configuration
-- Multi-stage build for optimization
-- Environment variable management
-- Network configuration for inter-container communication
-- Volume mounting for persistent data
-
 ## Usage Guide
 
 ### 1. Upload PDF Documents
@@ -290,63 +267,8 @@ docker exec rag-container python manage.py test --verbosity=2
 - **Embedding Generation**: FastEmbed for efficient text processing
 - **Chunking Strategy**: Recursive character splitting for optimal retrieval
 
-## Security Features
-
-- **CSRF Protection**: Built-in Django CSRF middleware
-- **File Validation**: Comprehensive PDF file type and size validation
-- **Session Security**: Secure session management and storage
-- **Input Sanitization**: Form validation and data cleaning
-- **Admin Authentication**: Secure admin interface access
-
-## Deployment
-
-### Production Considerations
-1. **Environment Variables**: Use secure environment variable management
-2. **Database**: Consider PostgreSQL for production workloads
-3. **Static Files**: Configure CDN for static asset delivery
-4. **Monitoring**: Implement application performance monitoring
-5. **Backup**: Regular database and file backups
-6. **SSL/TLS**: Enable HTTPS for production deployments
-
-### Scaling Strategies
-- **Horizontal Scaling**: Multiple application instances behind load balancer
-- **Database Scaling**: Qdrant clustering for high availability
-- **Caching**: Redis for session and query caching
-- **CDN**: Content delivery network for global performance
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Author
-
-**Your Name** - [your-email@example.com](mailto:your-email@example.com)
-
-## Acknowledgments
-
-- **Django Team**: For the excellent web framework
-- **Groq**: For fast and efficient LLM inference
-- **Qdrant**: For high-performance vector search
-- **LangChain**: For the RAG framework and integrations
-- **Open Source Community**: For the amazing tools and libraries
-
-## Support
-
-For support and questions:
-- **Email**: [your-email@example.com](mailto:your-email@example.com)
-- **GitHub Issues**: Report bugs and request features
-- **Documentation**: [Project Wiki](https://github.com/yourusername/your-repo/wiki)
-
 ---
 
-**Made with dedication and expertise by [Your Name]**
+**Last updated: December 2024**
 
-*Last updated: December 2024*
+
